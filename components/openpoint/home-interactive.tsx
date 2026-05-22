@@ -1582,7 +1582,7 @@ export function HomeInteractive() {
               </button>
               
               <div className="flex-1 mx-3 bg-slate-100 hover:bg-slate-200 transition-colors rounded-full py-2 px-4 text-center cursor-pointer">
-                <span className="text-sm font-bold text-slate-700">Hi, ！台科大專屬優惠</span>
+                <span className="text-sm font-bold text-slate-700">Hi,披薩 ！台科大專屬優惠</span>
               </div>
               
               <button onClick={() => setActiveScreen('my_barcode')} className="flex flex-col items-center justify-center p-1 hover:opacity-80">
