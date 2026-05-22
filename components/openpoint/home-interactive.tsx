@@ -41,7 +41,7 @@ function CouponModal({ onClose, onGoToCoupons }: { onClose: () => void, onGoToCo
             <Check className="h-8 w-8 text-green-600" />
           </div>
           <h2 className="mb-2 text-xl font-bold text-slate-800">打卡成功！</h2>
-          <p className="mb-6 text-sm text-slate-500">恭喜獲得 波霸珍珠奶茶嘗鮮價 9 折券</p>
+          <p className="mb-6 text-sm text-slate-500">恭喜獲得 美式咖啡 8 折券</p>
           <Button onClick={onGoToCoupons} className="w-full bg-[#F26722] hover:bg-orange-600 text-white shadow-md active:scale-95 transition-all">
             收下優惠並查看
           </Button>
@@ -246,9 +246,9 @@ function CouponsScreen({ onBack }: { onBack: () => void }) {
   const [selectedTime, setSelectedTime] = useState('');
 
   const coupons = [
-    { id: 1, title: "美式咖啡 8 折券", subtitle: "限時優惠 (學餐消費回饋)", expiry: "今天 20:00 前有效", color: "bg-[#F26722]", highlight: true },
-    { id: 2, title: "波霸珍珠奶茶", subtitle: "嘗鮮價 9 折 (早八打卡獎勵)", expiry: "2026/05/15", color: "bg-orange-400" },
-    { id: 3, title: "拿鐵咖啡 9 折券", subtitle: "全品項適用", expiry: "2026/05/01", color: "bg-green-600" },
+    { id: 1, title: "美式咖啡 8 折券", subtitle: "限時優惠 (早八打卡獎勵)", expiry: "今天 12:00 前有效", color: "bg-[#F26722]", highlight: true },
+    { id: 2, title: "波霸珍珠奶茶", subtitle: "嘗鮮價 9 折 (學餐消費回饋)", expiry: "今天 22:00 前有效", color: "bg-orange-400" },
+    { id: 3, title: "拿鐵咖啡 9 折券", subtitle: "全品項適用", expiry: "2026/06/01", color: "bg-green-600" },
   ];
 
   const nearbyStores = [
@@ -1679,7 +1679,7 @@ export function HomeInteractive() {
                       <div className="rounded-xl bg-[#F26722] p-2.5 text-white shadow-md flex-shrink-0"><Gift className="h-5 w-5" /></div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <h3 className="font-bold text-slate-800 text-sm">老拉新送泡麵</h3>
+                          <h3 className="font-bold text-slate-800 text-sm">邀請朋友送優惠</h3>
                         </div>
                         <p className="text-xs text-slate-500 mb-2">Referral Noodle Challenge</p>
                         <div className="space-y-1.5">
