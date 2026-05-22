@@ -213,9 +213,7 @@ function PrintQRCodeScreen({ onBack }: { onBack: () => void }) {
           <ShieldCheck className="h-4 w-4 mr-1.5" /> 已完成預先授權圈存
         </div>
         <div className="bg-white p-6 rounded-[32px] shadow-xl border border-slate-100 mb-8 w-full max-w-[280px] flex flex-col items-center relative">
-          <svg width="180" height="180" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" className="text-slate-900 mb-5">
-            <path fill="currentColor" d="M0,0 h30 v30 h-30 z M5,5 v20 h20 v-20 z M10,10 h10 v10 h-10 z"/><path fill="currentColor" d="M70,0 h30 v30 h-30 z M75,5 v20 h20 v-20 z M80,10 h10 v10 h-10 z"/><path fill="currentColor" d="M0,70 h30 v30 h-30 z M5,75 v20 h20 v-20 z M10,80 h10 v10 h-10 z"/><path fill="currentColor" d="M40,0 h20 v10 h-20 z M40,20 h10 v20 h-10 z M60,10 h10 v10 h-10 z M50,40 h20 v20 h-20 z M80,40 h20 v10 h-20 z M70,60 h10 v20 h-10 z M40,70 h20 v10 h-20 z M40,90 h10 v10 h-10 z M80,80 h20 v20 h-20 z M85,85 h10 v10 h-10 z M20,40 h10 v20 h-10 z M0,40 h10 v10 h-10 z M0,55 h20 v10 h-20 z M35,35 h10 v10 h-10 z M65,75 h10 v10 h-10 z M15,60 h10 v10 h-10 z"/>
-          </svg>
+          <QrCode className="h-40 w-40 text-slate-900 mb-5" />
           <div className="text-center w-full pt-4 border-t border-slate-100">
             <h2 className="text-xl font-bold text-[#F26722] mb-1">請至 ibon 掃描出紙</h2>
             <p className="text-xs font-medium text-slate-500">免經店員解鎖，免排隊結帳</p>
@@ -427,10 +425,11 @@ function CouponsScreen({ onBack }: { onBack: () => void }) {
 }
 
 // ==========================================
-// 學餐支付 Screen (掃碼付款，保留申報功能)
+// ★ 學餐支付 Screen (掃碼付款，保留申報與申報完成頁面)
 // ==========================================
 function CampusPayScreen({ onBack }: { onBack: () => void }) {
-  const [payState, setPayState] = useState<'paying' | 'processing' | 'success' | 'report'>('paying');
+  // ★ 加入 report_success 狀態
+  const [payState, setPayState] = useState<'paying' | 'processing' | 'success' | 'report' | 'report_success'>('paying');
   const [storeName, setStoreName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -441,6 +440,7 @@ function CampusPayScreen({ onBack }: { onBack: () => void }) {
 
   const handleInternalBack = () => {
     if (payState === 'report') setPayState('success');
+    else if (payState === 'report_success') onBack(); // 申報完成後點擊返回，回到首頁
     else onBack();
   };
 
@@ -449,7 +449,7 @@ function CampusPayScreen({ onBack }: { onBack: () => void }) {
       <div className="p-4 bg-white border-b flex items-center justify-between shrink-0 shadow-sm">
         <BackButton onClick={handleInternalBack} />
         <h1 className="text-lg font-bold text-slate-800">
-          {payState === 'report' ? '店家申報與補領' : '學餐支付 (掃碼)'}
+          {payState === 'report' || payState === 'report_success' ? '店家申報與補領' : '學餐支付 (掃碼)'}
         </h1>
         <div className="w-16"></div>
       </div>
@@ -466,7 +466,6 @@ function CampusPayScreen({ onBack }: { onBack: () => void }) {
               <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#4CAF50] rounded-tr-3xl"></div>
               <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-[#4CAF50] rounded-bl-3xl"></div>
               <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-[#4CAF50] rounded-br-3xl"></div>
-              {/* 掃描線動畫 */}
               <div className="absolute top-1/2 left-0 w-full h-[2px] bg-[#4CAF50] shadow-[0_0_10px_2px_rgba(76,175,80,0.6)] animate-pulse"></div>
             </div>
             <p className="mt-8 text-sm font-bold text-slate-600 text-center">請將鏡頭對準店家收款碼</p>
@@ -564,7 +563,8 @@ function CampusPayScreen({ onBack }: { onBack: () => void }) {
                 setTimeout(() => {
                   setIsSubmitting(false);
                   setStoreName('');
-                  setPayState('success'); 
+                  // ★ 這裡從 'success' 改成跳轉到 'report_success'
+                  setPayState('report_success'); 
                 }, 1500);
               }} 
               className="w-full bg-[#F26722] hover:bg-orange-600 text-white font-bold py-6 rounded-2xl shadow-lg active:scale-95 transition-all text-lg disabled:opacity-50"
@@ -574,19 +574,33 @@ function CampusPayScreen({ onBack }: { onBack: () => void }) {
           </div>
         </div>
       )}
+
+      {/* ★ 新增：專屬的申報完成頁面 */}
+      {payState === 'report_success' && (
+        <div className="flex-1 p-6 flex flex-col items-center justify-center animate-in zoom-in-95 duration-500 pb-20">
+          <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-green-100 shadow-inner">
+            <CheckCircle2 className="h-12 w-12 text-[#4CAF50]" />
+          </div>
+          <h2 className="text-2xl font-black text-slate-800 mb-2">申報已送出！</h2>
+          <p className="text-slate-500 text-center mb-8 font-medium">感謝您的回報！<br/>審核通過後，我們將立即為您補發專屬優惠券。</p>
+
+          <Button onClick={onBack} className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-6 rounded-2xl shadow-md active:scale-95 transition-all text-lg">
+            回首頁
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
 
 // ==========================================
-// Foodomo 外送揪團 (★ 加入 OPEN POINT 支付選項)
+// Foodomo 外送揪團
 // ==========================================
 function FoodomoGroupScreen({ setActiveScreen }: { setActiveScreen: (screen: ScreenType) => void }) {
   const [view, setView] = useState<'init' | 'host_select_store' | 'host_room_created' | 'member_enter_code' | 'menu' | 'payment' | 'status' | 'success'>('init');
   const [role, setRole] = useState<'host' | 'member'>('host');
   const [roomCode, setRoomCode] = useState('');
   
-  // ★ 新增 selectedPay 狀態，預設為 icash
   const [selectedPay, setSelectedPay] = useState<'icash' | 'op'>('icash');
 
   const restaurants = [
@@ -823,7 +837,6 @@ function FoodomoGroupScreen({ setActiveScreen }: { setActiveScreen: (screen: Scr
 
             <h2 className="font-bold text-slate-800 mb-3 px-1">選擇付款方式</h2>
             <div className="space-y-3 mb-6">
-              {/* ★ 選項一：icash Pay */}
               <button onClick={() => setSelectedPay('icash')} className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-3 relative overflow-hidden ${selectedPay === 'icash' ? 'border-[#4CAF50] bg-green-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
                 <div className="absolute top-0 right-0 bg-[#4CAF50] text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">限時活動</div>
                 <div className={`h-10 w-10 rounded-full flex items-center justify-center shrink-0 ${selectedPay === 'icash' ? 'bg-[#1CA2D8]' : 'bg-slate-200'}`}>
@@ -836,7 +849,6 @@ function FoodomoGroupScreen({ setActiveScreen }: { setActiveScreen: (screen: Scr
                 {selectedPay === 'icash' && <div className="h-6 w-6 rounded-full bg-[#4CAF50] flex items-center justify-center shrink-0"><Check className="h-4 w-4 text-white" /></div>}
               </button>
 
-              {/* ★ 選項二：OPEN POINT 點數扣抵 */}
               <button onClick={() => setSelectedPay('op')} className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-3 ${selectedPay === 'op' ? 'border-[#4CAF50] bg-green-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
                 <div className={`h-10 w-10 rounded-full flex items-center justify-center shrink-0 ${selectedPay === 'op' ? 'bg-[#F26722]' : 'bg-slate-200'}`}>
                   <CreditCard className={`h-5 w-5 ${selectedPay === 'op' ? 'text-white' : 'text-slate-500'}`} />
@@ -1512,7 +1524,7 @@ function ProfileScreen({ onBack }: { onBack: () => void }) {
           </div>
           <div>
             <h2 className="text-xl font-bold text-slate-800">披薩</h2>
-            <p className="text-sm text-slate-500">學生專屬會員</p>
+            <p className="text-sm text-slate-500">台科大認證會員</p>
           </div>
         </div>
       </div>
@@ -1570,7 +1582,7 @@ export function HomeInteractive() {
               </button>
               
               <div className="flex-1 mx-3 bg-slate-100 hover:bg-slate-200 transition-colors rounded-full py-2 px-4 text-center cursor-pointer">
-                <span className="text-sm font-bold text-slate-700">Hi, 披薩！學生專屬優惠</span>
+                <span className="text-sm font-bold text-slate-700">Hi, ！台科大專屬優惠</span>
               </div>
               
               <button onClick={() => setActiveScreen('my_barcode')} className="flex flex-col items-center justify-center p-1 hover:opacity-80">
