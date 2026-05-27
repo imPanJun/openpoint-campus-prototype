@@ -594,14 +594,26 @@ function CampusPayScreen({ onBack }: { onBack: () => void }) {
 }
 
 // ==========================================
-// Foodomo 外送揪團
+// ★ Foodomo 外送揪團 (加入真實 GPS 地圖定位與外送地址設定)
 // ==========================================
 function FoodomoGroupScreen({ setActiveScreen }: { setActiveScreen: (screen: ScreenType) => void }) {
-  const [view, setView] = useState<'init' | 'host_select_store' | 'host_room_created' | 'member_enter_code' | 'menu' | 'payment' | 'status' | 'success'>('init');
+  const [view, setView] = useState<'init' | 'host_select_store' | 'host_room_created' | 'member_enter_code' | 'menu' | 'payment' | 'status' | 'address' | 'success'>('init');
   const [role, setRole] = useState<'host' | 'member'>('host');
   const [roomCode, setRoomCode] = useState('');
   
   const [selectedPay, setSelectedPay] = useState<'icash' | 'op'>('icash');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
+  
+  // ★ 餐廳選擇地圖狀態
+  const [storeViewMode, setStoreViewMode] = useState<'list' | 'map'>('list');
+  const [isLocatingMap, setIsLocatingMap] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
+  const [userCoords, setUserCoords] = useState<{lat: number, lng: number} | null>(null);
+
+  // ★ 外送地址地圖狀態
+  const [isLocatingAddress, setIsLocatingAddress] = useState(false);
+  const [addressError, setAddressError] = useState<string | null>(null);
+  const [addressCoords, setAddressCoords] = useState<{lat: number, lng: number} | null>(null);
 
   const restaurants = [
     { id: 'starbucks', name: "星巴克 (台科大店)", min: 200, fee: 45, items: [{ id: "sb1", name: "大杯美式咖啡", price: 110 }, { id: "sb2", name: "大杯那堤", price: 135 }, { id: "sb3", name: "焦糖瑪奇朵", price: 155 }] },
@@ -659,10 +671,59 @@ function FoodomoGroupScreen({ setActiveScreen }: { setActiveScreen: (screen: Scr
       else setView('member_enter_code');
     }
     else if (view === 'payment') setView('menu');
+    else if (view === 'address') setView('status'); 
     else setActiveScreen('home'); 
   };
 
   const allPaid = members.length > 0 && members.every(m => m.isPaid);
+
+  // ★ 新增功能：要求 GPS 權限尋找餐廳
+  const handleLocateRestaurants = () => {
+    setIsLocatingMap(true);
+    setMapError(null);
+    setStoreViewMode('map');
+    
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          setIsLocatingMap(false);
+        },
+        (err) => {
+          setIsLocatingMap(false);
+          setMapError("無法取得您的定位，請確認已授權 GPS 權限");
+        },
+        { timeout: 5000 }
+      );
+    } else {
+      setIsLocatingMap(false);
+      setMapError("您的裝置或瀏覽器不支援定位功能");
+    }
+  };
+
+  // ★ 新增功能：要求 GPS 權限設定外送地址
+  const handleLocateAddress = () => {
+    setIsLocatingAddress(true);
+    setAddressError(null);
+    
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setAddressCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          setIsLocatingAddress(false);
+          setDeliveryAddress("已取得精確 GPS 定位座標");
+        },
+        (err) => {
+          setIsLocatingAddress(false);
+          setAddressError("無法取得定位，請手動選擇下方地址");
+        },
+        { timeout: 5000 }
+      );
+    } else {
+      setIsLocatingAddress(false);
+      setAddressError("您的裝置或瀏覽器不支援定位功能");
+    }
+  };
 
   return (
     <div className="h-screen w-full bg-slate-50 overflow-hidden flex flex-col">
@@ -706,24 +767,88 @@ function FoodomoGroupScreen({ setActiveScreen }: { setActiveScreen: (screen: Scr
         )}
 
         {view === 'host_select_store' && (
-          <div className="p-4 animate-in slide-in-from-right-4 duration-300">
-            <h2 className="text-sm font-bold text-slate-700 mb-3 px-1">請選擇附近可外送餐廳</h2>
-            <div className="space-y-3">
-              {restaurants.map((store) => (
-                <Card key={store.id} onClick={() => { setSelectedStoreId(store.id); setView('host_room_created'); }} className="border-0 shadow-sm cursor-pointer hover:ring-2 hover:ring-[#4CAF50] transition-all active:scale-95 bg-white">
-                  <CardContent className="p-4 flex items-center justify-between">
-                    <div>
-                      <h3 className="font-bold text-slate-800">{store.name}</h3>
-                      <div className="flex gap-2 mt-2">
-                        <Badge variant="secondary" className="bg-green-50 text-green-700 border-green-100 text-[10px]">滿 ${store.min} 外送</Badge>
-                        <Badge variant="secondary" className="bg-slate-100 text-slate-600 text-[10px]">外送費 ${store.fee}</Badge>
-                      </div>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-slate-300" />
-                  </CardContent>
-                </Card>
-              ))}
+          <div className="p-4 animate-in slide-in-from-right-4 duration-300 h-full flex flex-col">
+            <div className="flex items-center justify-between mb-4 px-1 shrink-0">
+              <h2 className="text-sm font-bold text-slate-700">請選擇附近可外送餐廳</h2>
+              <div className="bg-slate-200 p-1 rounded-lg flex text-xs font-bold shadow-inner">
+                <button 
+                  onClick={() => setStoreViewMode('list')} 
+                  className={`px-3 py-1.5 rounded-md transition-all ${storeViewMode === 'list' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  列表
+                </button>
+                <button 
+                  onClick={handleLocateRestaurants} 
+                  className={`px-3 py-1.5 rounded-md transition-all ${storeViewMode === 'map' ? 'bg-[#4CAF50] shadow-sm text-white' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  地圖
+                </button>
+              </div>
             </div>
+
+            {storeViewMode === 'list' ? (
+              <div className="space-y-3 flex-1 overflow-y-auto pb-6">
+                {restaurants.map((store) => (
+                  <Card key={store.id} onClick={() => { setSelectedStoreId(store.id); setView('host_room_created'); }} className="border-0 shadow-sm cursor-pointer hover:ring-2 hover:ring-[#4CAF50] transition-all active:scale-95 bg-white">
+                    <CardContent className="p-4 flex items-center justify-between">
+                      <div>
+                        <h3 className="font-bold text-slate-800">{store.name}</h3>
+                        <div className="flex gap-2 mt-2">
+                          <Badge variant="secondary" className="bg-green-50 text-green-700 border-green-100 text-[10px]">滿 ${store.min} 外送</Badge>
+                          <Badge variant="secondary" className="bg-slate-100 text-slate-600 text-[10px]">外送費 ${store.fee}</Badge>
+                        </div>
+                      </div>
+                      <ChevronRight className="h-5 w-5 text-slate-300" />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : isLocatingMap ? (
+              <div className="flex-1 bg-[#E8F0FE] rounded-3xl border-2 border-slate-200 flex flex-col items-center justify-center shadow-inner mb-6">
+                 <Loader2 className="h-10 w-10 text-[#4CAF50] animate-spin mb-4" />
+                 <p className="font-bold text-slate-700 text-sm">正在取得真實定位，搜尋附近商家...</p>
+              </div>
+            ) : mapError ? (
+              <div className="flex-1 bg-slate-100 rounded-3xl border-2 border-slate-200 flex flex-col items-center justify-center p-6 text-center shadow-inner mb-6">
+                 <MapPin className="h-10 w-10 text-slate-400 mb-3" />
+                 <p className="font-bold text-red-500 mb-2">{mapError}</p>
+                 <Button variant="outline" onClick={() => setStoreViewMode('list')} className="mt-3">返回列表模式</Button>
+              </div>
+            ) : (
+              <div className="flex-1 bg-[#E8F0FE] rounded-3xl border-2 border-slate-200 relative overflow-hidden shadow-inner mb-6 animate-in zoom-in-95 duration-300">
+                <div className="w-full h-full overflow-auto touch-pan-x touch-pan-y cursor-grab active:cursor-grabbing [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                  <div className="w-[600px] h-[600px] relative" style={{ backgroundImage: 'radial-gradient(#4CAF50 1.5px, transparent 1.5px)', backgroundSize: '24px 24px' }}>
+                    
+                    <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-10">
+                      <div className="h-6 w-6 bg-blue-500 rounded-full border-4 border-white shadow-lg animate-pulse flex items-center justify-center">
+                        <div className="h-2 w-2 bg-white rounded-full"></div>
+                      </div>
+                      <span className="text-[10px] font-bold text-blue-700 mt-1 bg-white/90 px-2 py-0.5 rounded-full shadow-sm">您的真實位置</span>
+                    </div>
+                    
+                    {restaurants.map((store, idx) => {
+                      const positions = [{ top: '25%', left: '20%' }, { top: '65%', left: '65%' }, { top: '35%', left: '75%' }];
+                      return (
+                        <button key={store.id} onClick={() => { setSelectedStoreId(store.id); setView('host_room_created'); }} className="absolute flex flex-col items-center group active:scale-95 transition-transform z-20" style={positions[idx]}>
+                          <div className="bg-white p-2 rounded-xl shadow-md border border-slate-200 group-hover:border-[#4CAF50] group-hover:shadow-xl transition-all mb-1">
+                            <p className="text-xs font-bold text-slate-800 whitespace-nowrap">{store.name}</p>
+                            <p className="text-[10px] text-[#4CAF50] font-bold mt-0.5">外送費 ${store.fee}</p>
+                          </div>
+                          <div className="h-8 w-8 bg-[#4CAF50] text-white rounded-full flex items-center justify-center shadow-md"><Store className="h-4 w-4" /></div>
+                          <div className="w-1 h-3 bg-[#4CAF50]"></div>
+                          <div className="w-3 h-1.5 bg-black/20 rounded-full blur-[1px]"></div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+                
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur px-4 py-2.5 rounded-full shadow-lg border border-slate-100 flex items-center gap-2 w-max pointer-events-none">
+                  <Target className="h-4 w-4 text-[#F26722]" />
+                  <span className="text-xs font-bold text-slate-700">已根據您的 GPS 篩選</span>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -918,7 +1043,8 @@ function FoodomoGroupScreen({ setActiveScreen }: { setActiveScreen: (screen: Scr
               {role === 'host' ? (
                 <>
                   {!allPaid && <Button onClick={handleSimulateAllPaid} variant="outline" className="w-full mb-3 border-[#4CAF50] text-[#4CAF50] font-bold hover:bg-green-50">展示按鈕：模擬所有人已付款</Button>}
-                  <Button onClick={() => setView('success')} disabled={!allPaid} className={`w-full font-bold py-6 rounded-xl text-lg transition-all ${!allPaid ? 'bg-slate-200 text-slate-400' : 'bg-[#4CAF50] hover:bg-green-600 text-white shadow-lg shadow-green-500/30'}`}>全員確認完畢，送出訂單</Button>
+                  {/* ★ 這裡跳轉到 address 設定地址頁面，並觸發 GPS 定位 */}
+                  <Button onClick={() => { setView('address'); handleLocateAddress(); }} disabled={!allPaid} className={`w-full font-bold py-6 rounded-xl text-lg transition-all ${!allPaid ? 'bg-slate-200 text-slate-400' : 'bg-[#4CAF50] hover:bg-green-600 text-white shadow-lg shadow-green-500/30'}`}>全員確認完畢，選擇外送地址</Button>
                 </>
               ) : (
                 <Button onClick={() => setView('success')} variant="outline" className="w-full border-slate-300 text-slate-600 font-bold hover:bg-slate-50">展示按鈕：模擬主揪送出訂單</Button>
@@ -927,11 +1053,98 @@ function FoodomoGroupScreen({ setActiveScreen }: { setActiveScreen: (screen: Scr
           </div>
         )}
 
+        {/* ★ 設定外送地址 */}
+        {view === 'address' && (
+          <div className="p-4 animate-in slide-in-from-right-4 duration-300 h-full flex flex-col pb-20">
+            <h2 className="text-sm font-bold text-slate-700 mb-3 px-1 mt-2">請設定外送地址</h2>
+            
+            {/* GPS 地圖定位區塊 */}
+            <div className="w-full h-[250px] bg-[#E8F0FE] rounded-2xl border-2 border-slate-200 relative overflow-hidden mb-4 shadow-inner shrink-0">
+                {isLocatingAddress ? (
+                    <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex flex-col items-center justify-center z-10">
+                        <Loader2 className="h-8 w-8 text-[#4CAF50] animate-spin mb-2" />
+                        <p className="font-bold text-slate-700 text-sm">正在獲取精確 GPS 定位...</p>
+                    </div>
+                ) : addressError ? (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center bg-slate-50">
+                        <MapPin className="h-8 w-8 text-slate-400 mb-2" />
+                        <p className="text-red-500 font-bold text-sm mb-1">{addressError}</p>
+                        <Button variant="outline" size="sm" onClick={handleLocateAddress} className="mt-2 text-[#4CAF50] border-[#4CAF50]">重新定位</Button>
+                    </div>
+                ) : (
+                    <div className="w-full h-full overflow-auto touch-pan-x touch-pan-y cursor-grab active:cursor-grabbing [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                        <div className="w-[600px] h-[600px] relative" style={{ backgroundImage: 'radial-gradient(#4CAF50 1.5px, transparent 1.5px)', backgroundSize: '24px 24px' }}>
+                            <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-10">
+                                <div className="bg-slate-800 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl shadow-lg mb-1 whitespace-nowrap relative">
+                                    預設外送至此地點
+                                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-800 rotate-45"></div>
+                                </div>
+                                <div className="h-6 w-6 bg-red-500 rounded-full border-4 border-white shadow-lg animate-bounce flex items-center justify-center">
+                                    <div className="h-2 w-2 bg-white rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+                
+                {!isLocatingAddress && !addressError && (
+                    <div className="absolute bottom-3 right-3 z-20">
+                        <button onClick={handleLocateAddress} className="h-10 w-10 bg-white rounded-full shadow-lg flex items-center justify-center text-slate-700 hover:text-[#4CAF50] active:scale-95 transition-transform">
+                            <MapPin className="h-5 w-5" />
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            {/* 輸入框 */}
+            <div className="mb-4">
+                <Input 
+                  value={deliveryAddress} 
+                  onChange={(e) => setDeliveryAddress(e.target.value)}
+                  placeholder="請輸入詳細地址 (例: 台科大一餐)" 
+                  className="h-12 font-bold text-slate-800 focus-visible:ring-[#4CAF50]"
+                />
+            </div>
+
+            {/* 預設地點 */}
+            <div className="space-y-3 flex-1 overflow-y-auto">
+              {[
+                { id: 'a1', name: '台科大 第一教學大樓', detail: '1F 大廳' },
+                { id: 'a2', name: '台科大 第三學生宿舍', detail: '大門口交誼廳' },
+                { id: 'a3', name: '台科大 研揚大樓', detail: '1F 側門' }
+              ].map(addr => (
+                <button 
+                  key={addr.id} 
+                  onClick={() => setDeliveryAddress(addr.name)} 
+                  className={`w-full bg-white p-4 rounded-2xl border-2 flex items-center justify-between transition-all active:scale-95 shadow-sm ${deliveryAddress === addr.name ? 'border-[#4CAF50] bg-green-50' : 'border-slate-200 hover:border-green-300'}`}
+                >
+                  <div className="flex items-center">
+                    <div className={`p-2.5 rounded-full mr-3 ${deliveryAddress === addr.name ? 'bg-[#4CAF50] text-white' : 'bg-green-50 text-[#4CAF50]'}`}>
+                      <MapPin className="h-5 w-5" />
+                    </div>
+                    <div className="text-left">
+                      <h3 className="font-bold text-slate-800 text-sm">{addr.name}</h3>
+                      <p className="text-xs text-slate-500 mt-1">{addr.detail}</p>
+                    </div>
+                  </div>
+                  {deliveryAddress === addr.name && <CheckCircle2 className="h-5 w-5 text-[#4CAF50]" />}
+                </button>
+              ))}
+            </div>
+            
+            <div className="mt-auto pt-4 pb-2 shrink-0 border-t border-slate-100">
+              <Button onClick={() => setView('success')} disabled={!deliveryAddress} className="w-full bg-[#4CAF50] hover:bg-green-600 text-white font-bold py-6 rounded-2xl shadow-lg active:scale-95 transition-all text-lg disabled:opacity-50">
+                確認地址，送出訂單
+              </Button>
+            </div>
+          </div>
+        )}
+
         {view === 'success' && (
           <div className="p-6 flex flex-col items-center justify-start h-full animate-in zoom-in-95 duration-500 overflow-y-auto pb-20">
             <div className="mb-6 mt-4 flex h-24 w-24 items-center justify-center rounded-full bg-green-100 shadow-inner"><CheckCircle2 className="h-12 w-12 text-[#4CAF50]" /></div>
             <h2 className="text-2xl font-black text-slate-800 mb-2">揪團訂單已送出！</h2>
-            <p className="text-slate-500 text-center mb-8 font-medium">預計於 <span className="text-green-600 font-bold">12:30</span> 送達台科大</p>
+            <p className="text-slate-500 text-center mb-8 font-medium">預計於 <span className="text-green-600 font-bold">12:30</span> 送達<br/><span className="font-bold text-slate-800 mt-1 block">{deliveryAddress || '台科大'}</span></p>
 
             <div className="w-full bg-white rounded-3xl p-5 shadow-xl border border-slate-100 relative overflow-hidden mb-8">
               <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl z-10 shadow-sm">商業防禦機制</div>
