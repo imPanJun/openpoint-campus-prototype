@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { 
   ArrowLeft, Upload, Camera, ScanLine, Loader2, Users, UserPlus, User,
   CheckCircle, ChevronRight, QrCode, Smartphone, Info, Share2, AlertTriangle, Receipt, CreditCard, Link,
-  RefreshCw, Check
+  RefreshCw, Check, Plus
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { BackButton } from "../common/BackButton"
