@@ -47,6 +47,11 @@ export function HomeInteractive() {
   const [activeScreen, setActiveScreen] = useState<ScreenType>('home')
   const [showCouponModal, setShowCouponModal] = useState(false)
   const [fastPassAmount, setFastPassAmount] = useState(119) 
+  
+  // 新增狀態
+  const [hasUnlocked, setHasUnlocked] = useState(false)
+  const [isUnlocking, setIsUnlocking] = useState(false)
+  const [commuteProgress, setCommuteProgress] = useState(4)
 
   const goHome = () => setActiveScreen('home')
   
@@ -174,6 +179,13 @@ export function HomeInteractive() {
                         <Salad className="h-7 w-7 text-green-500 mb-1" />
                         <span className="text-slate-700 text-[10px] font-bold">i珍食雷達</span>
                       </button>
+                      
+                      {/* Phase 3 未來擴充版位 */}
+                      <button disabled className="w-[68px] flex flex-col items-center justify-center py-2 opacity-60 relative cursor-not-allowed">
+                        <div className="absolute -top-1 -right-1 bg-slate-200 text-slate-600 text-[8px] font-black px-1 rounded-sm shadow-sm scale-90 whitespace-nowrap">Phase 3</div>
+                        <Fingerprint className="h-7 w-7 text-slate-400 mb-1" />
+                        <span className="text-slate-500 text-[10px] font-bold whitespace-nowrap">校園通行證</span>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -204,6 +216,49 @@ export function HomeInteractive() {
                       </div>
                       <ChevronRight className="h-4 w-4 text-slate-400 flex-shrink-0 mt-1" />
                     </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* 我的通勤任務 */}
+              <div className="mt-5 px-3">
+                <div className="flex justify-between items-end mb-2 px-1">
+                  <h2 className="text-base font-black text-slate-800">我的通勤任務</h2>
+                  <span className="text-xs text-[#1CA2D8] font-bold">本週進度 {commuteProgress} / 5</span>
+                </div>
+                <Card className="border border-blue-100 shadow-sm overflow-hidden">
+                  <CardContent className="p-0">
+                    <div className="p-3 bg-gradient-to-r from-blue-50 to-white flex items-center gap-3">
+                      <div className="rounded-xl bg-[#1CA2D8] p-2.5 text-white shadow-md flex-shrink-0"><Bike className="h-5 w-5" /></div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-slate-800 text-sm mb-1">icash Pay 乘車任務</h3>
+                        <Progress value={(commuteProgress / 5) * 100} className="h-2 bg-slate-200 [&>div]:bg-[#1CA2D8]" />
+                      </div>
+                    </div>
+                    {commuteProgress < 5 ? (
+                      <div className="p-3 border-t border-slate-50">
+                        <Button 
+                          onClick={() => setCommuteProgress(5)}
+                          variant="outline" 
+                          className="w-full border-[#1CA2D8] text-[#1CA2D8] hover:bg-blue-50 font-bold active:scale-95 transition-transform"
+                        >
+                          [Demo] 模擬使用 icash Pay 搭公車
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="p-3 border-t border-slate-50 bg-green-50 flex flex-col gap-2 animate-in fade-in zoom-in duration-500">
+                        <div className="flex items-center gap-2 text-green-700">
+                          <CheckCircle className="h-5 w-5" />
+                          <span className="font-bold text-sm">恭喜解鎖：早八補給 咖啡買一送一券！</span>
+                        </div>
+                        <Button 
+                          onClick={() => alert("✅ 已成功導流至實體通路，完成會員生態圈循環！")}
+                          className="w-full bg-green-600 hover:bg-green-700 text-white font-bold shadow-md active:scale-95 transition-transform"
+                        >
+                          立即前往 7-11 兌換
+                        </Button>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
@@ -261,8 +316,47 @@ export function HomeInteractive() {
     }
   }
 
+  if (!hasUnlocked) {
+    return (
+      <div className={`mx-auto min-h-screen max-w-[400px] flex flex-col items-center justify-center p-6 relative overflow-hidden transition-all duration-1000 ${isUnlocking ? 'bg-slate-50 opacity-0 scale-110' : 'bg-slate-900 shadow-2xl'}`}>
+        <div className={`text-center w-full transition-all duration-500 delay-100 ${isUnlocking ? 'scale-150 blur-xl opacity-0' : 'opacity-100'}`}>
+          <div className="w-28 h-28 bg-slate-800 rounded-[32px] mx-auto mb-10 flex items-center justify-center shadow-2xl relative overflow-hidden border border-slate-700">
+             {isUnlocking && <div className="absolute inset-0 bg-blue-500/30 animate-pulse"></div>}
+             {isUnlocking && <div className="absolute -top-4 -left-4 right-0 h-4 bg-blue-400 shadow-[0_0_20px_20px_#60a5fa] opacity-80 blur-xl animate-[pulse_1s_ease-in-out_infinite]"></div>}
+             <Fingerprint className={`h-14 w-14 transition-colors duration-300 ${isUnlocking ? 'text-blue-400 animate-pulse' : 'text-slate-500'}`} />
+          </div>
+          
+          <h1 className="text-3xl font-black text-white mb-3 tracking-widest flex items-center justify-center">
+            OPEN<span className="text-[#1CA2D8]">POINT</span><span className="text-slate-400 font-medium text-xl ml-1">.edu</span>
+          </h1>
+          <p className="text-slate-400 text-sm mb-16 tracking-widest">解鎖校園生活專屬生態圈</p>
+          
+          <Button 
+            onClick={() => {
+              setIsUnlocking(true)
+              setTimeout(() => {
+                setHasUnlocked(true)
+              }, 1800)
+            }}
+            disabled={isUnlocking}
+            className={`w-full bg-[#1CA2D8] hover:bg-[#158bba] text-white font-bold py-7 rounded-2xl shadow-lg transition-all duration-300 text-lg ${isUnlocking ? 'shadow-blue-500/50 bg-blue-500 scale-95' : ''}`}
+          >
+            {isUnlocking ? <Loader2 className="mr-3 h-6 w-6 animate-spin" /> : <ScanLine className="mr-3 h-6 w-6" />}
+            {isUnlocking ? '正在驗證學生身分...' : '快速綁定數位學生證'}
+          </Button>
+          
+          {!isUnlocking && (
+            <p className="mt-6 text-slate-600 text-xs font-medium cursor-pointer hover:text-slate-400 transition-colors">
+              或使用 @edu.tw 學校信箱登入
+            </p>
+          )}
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="mx-auto min-h-screen max-w-[400px] bg-slate-50 relative shadow-2xl">
+    <div className="mx-auto min-h-screen max-w-[400px] bg-slate-50 relative shadow-2xl animate-in fade-in duration-1000">
       {renderScreenContent()}
     </div>
   )

@@ -47,6 +47,10 @@ export function SplitBillScreen({ onBack }: { onBack: () => void }) {
   const [claimedItems, setClaimedItems] = useState<Record<string, string>>({}) // itemId -> userId (mock users)
   const [isSimulating, setIsSimulating] = useState(false)
   
+  // Extra Demo state
+  const [useOpPoints, setUseOpPoints] = useState(false)
+  const [scanText, setScanText] = useState("正在上傳收據...")
+  
   // For Flow B Claim Room
   const currentUser = 'p1' // me (host)
   
@@ -66,9 +70,12 @@ export function SplitBillScreen({ onBack }: { onBack: () => void }) {
 
   const handleScan = () => {
     setView('scanning')
+    setScanText("正在掃描收據...")
+    setTimeout(() => setScanText("AI 正在萃取品項與金額..."), 1000)
+    setTimeout(() => setScanText("✨ 辨識出：咖啡、飯糰、服務費..."), 2200)
     setTimeout(() => {
       setView('mode_select')
-    }, 2000)
+    }, 3200)
   }
 
   // Flow A Logic
@@ -174,12 +181,17 @@ export function SplitBillScreen({ onBack }: { onBack: () => void }) {
         {/* State: scanning */}
         {view === 'scanning' && (
           <div className="flex-1 overflow-y-auto flex flex-col items-center justify-center animate-in fade-in duration-300">
-            <div className="relative mb-6">
-              <Receipt className="h-20 w-20 text-slate-300" />
-              <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500 shadow-[0_0_10px_2px_rgba(99,102,241,0.6)] animate-[scan_1.5s_ease-in-out_infinite]" />
+            <div className="relative mb-8">
+              <Receipt className="h-24 w-24 text-slate-300" />
+              <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500 shadow-[0_0_15px_3px_rgba(99,102,241,0.8)] animate-[scan_1.5s_ease-in-out_infinite]" />
+              <div className="absolute inset-0 bg-indigo-500/10 animate-pulse rounded-lg"></div>
             </div>
-            <h2 className="text-xl font-bold text-slate-800 mb-2">AI 辨識中...</h2>
-            <p className="text-sm text-slate-500">正在萃取品項與金額資料</p>
+            <h2 className="text-2xl font-black text-slate-800 mb-3">AI 智慧辨識中</h2>
+            <div className="h-10 flex items-center justify-center">
+               <p className={`text-sm font-bold transition-all duration-300 ${scanText.includes('✨') ? 'text-indigo-600 scale-110' : 'text-slate-500'}`}>
+                 {scanText}
+               </p>
+            </div>
           </div>
         )}
 
@@ -369,7 +381,25 @@ export function SplitBillScreen({ onBack }: { onBack: () => void }) {
               })()}
             </div>
             
-            <div className="p-4 border-t bg-white shadow-[0_-10px_20px_rgba(0,0,0,0.05)] shrink-0 z-20">
+            <div className="p-4 border-t bg-white shadow-[0_-10px_20px_rgba(0,0,0,0.05)] shrink-0 z-20 space-y-3">
+              <div 
+                onClick={() => setUseOpPoints(!useOpPoints)}
+                className={`p-3 rounded-xl border-2 flex items-center justify-between cursor-pointer transition-all ${useOpPoints ? 'border-orange-400 bg-orange-50' : 'border-slate-200 bg-slate-50 hover:bg-slate-100'}`}
+              >
+                <div className="flex items-center gap-2">
+                  <div className={`h-5 w-5 rounded-full border flex items-center justify-center ${useOpPoints ? 'bg-orange-500 border-orange-500' : 'bg-white border-slate-300'}`}>
+                    {useOpPoints && <Check className="h-3 w-3 text-white" />}
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-slate-700 block">使用 50 點 OPENPOINT 折抵 10% 服務費</span>
+                    <span className="text-[10px] text-orange-500 font-bold block">(你是好房主！)</span>
+                  </div>
+                </div>
+                <div className="w-8 h-4 rounded-full relative transition-colors bg-slate-300">
+                  <div className={`absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-transform ${useOpPoints ? 'translate-x-4' : ''}`}></div>
+                  <div className={`absolute inset-0 rounded-full transition-opacity ${useOpPoints ? 'bg-orange-500 opacity-100' : 'opacity-0'}`}></div>
+                </div>
+              </div>
               <Button onClick={() => setView('success')} className="w-full bg-[#1CA2D8] hover:bg-[#158bba] text-white font-bold py-6 rounded-2xl shadow-lg active:scale-95 transition-all text-lg flex items-center justify-center">
                 <CreditCard className="mr-2 h-5 w-5" /> 發送 icash Pay 收款通知
               </Button>
@@ -585,24 +615,32 @@ export function SplitBillScreen({ onBack }: { onBack: () => void }) {
                           </>
                         )}
                       </div>
-                    </div>
-
-                    <div className="bg-orange-50 rounded-2xl p-4 border border-orange-200 flex items-center shadow-sm">
-                      <div className="h-10 w-10 bg-white rounded-full flex items-center justify-center shadow-sm mr-3 shrink-0 text-[#F26722] font-black">OP</div>
-                      <div className="flex-1">
-                        <p className="font-bold text-orange-900 text-sm mb-0.5">使用 OP 點數折抵</p>
-                        <p className="text-xs text-orange-700">可用 50 點，折抵後只需付 ${Math.max(0, finalTotal - 50)}</p>
-                      </div>
-                      <div className="h-6 w-6 rounded-full border-2 border-[#F26722] bg-[#F26722] flex items-center justify-center">
-                        <Check className="h-4 w-4 text-white" />
                       </div>
                     </div>
                   </>
                 )
               })()}
             </div>
-            
-            <div className="p-4 border-t bg-white shadow-[0_-10px_20px_rgba(0,0,0,0.05)] shrink-0 z-20">
+
+            <div className="p-4 border-t bg-white shadow-[0_-10px_20px_rgba(0,0,0,0.05)] shrink-0 z-20 space-y-3">
+              <div 
+                onClick={() => setUseOpPoints(!useOpPoints)}
+                className={`p-3 rounded-xl border-2 flex items-center justify-between cursor-pointer transition-all ${useOpPoints ? 'border-orange-400 bg-orange-50' : 'border-slate-200 bg-slate-50 hover:bg-slate-100'}`}
+              >
+                <div className="flex items-center gap-2">
+                  <div className={`h-5 w-5 rounded-full border flex items-center justify-center ${useOpPoints ? 'bg-orange-500 border-orange-500' : 'bg-white border-slate-300'}`}>
+                    {useOpPoints && <Check className="h-3 w-3 text-white" />}
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-slate-700 block">使用 50 點 OPENPOINT 折抵 10% 處理費</span>
+                    <span className="text-[10px] text-orange-500 font-bold block">(你是好房主！)</span>
+                  </div>
+                </div>
+                <div className="w-8 h-4 rounded-full relative transition-colors bg-slate-300">
+                  <div className={`absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-transform ${useOpPoints ? 'translate-x-4' : ''}`}></div>
+                  <div className={`absolute inset-0 rounded-full transition-opacity ${useOpPoints ? 'bg-orange-500 opacity-100' : 'opacity-0'}`}></div>
+                </div>
+              </div>
               <Button onClick={() => setView('success')} className="w-full bg-[#1CA2D8] hover:bg-[#158bba] text-white font-bold py-6 rounded-2xl shadow-lg active:scale-95 transition-all text-lg flex items-center justify-center">
                 <CreditCard className="mr-2 h-5 w-5" /> 使用 icash Pay 轉帳給房主
               </Button>
