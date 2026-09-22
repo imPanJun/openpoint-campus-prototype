@@ -52,6 +52,10 @@ export function HomeInteractive() {
   const [hasUnlocked, setHasUnlocked] = useState(false)
   const [isUnlocking, setIsUnlocking] = useState(false)
   const [commuteProgress, setCommuteProgress] = useState(4)
+  
+  const [showMoodleLogin, setShowMoodleLogin] = useState(false)
+  const [loginEmail, setLoginEmail] = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
 
   const goHome = () => setActiveScreen('home')
   
@@ -252,7 +256,7 @@ export function HomeInteractive() {
                           <span className="font-bold text-sm">恭喜解鎖：早八補給 咖啡買一送一券！</span>
                         </div>
                         <Button 
-                          onClick={() => alert("✅ 已成功導流至實體通路，完成會員生態圈循環！")}
+                          onClick={() => setActiveScreen('coupons')}
                           className="w-full bg-green-600 hover:bg-green-700 text-white font-bold shadow-md active:scale-95 transition-transform"
                         >
                           立即前往 7-11 兌換
@@ -319,36 +323,81 @@ export function HomeInteractive() {
   if (!hasUnlocked) {
     return (
       <div className={`mx-auto min-h-screen max-w-[400px] flex flex-col items-center justify-center p-6 relative overflow-hidden transition-all duration-1000 ${isUnlocking ? 'bg-slate-50 opacity-0 scale-110' : 'bg-slate-900 shadow-2xl'}`}>
-        <div className={`text-center w-full transition-all duration-500 delay-100 ${isUnlocking ? 'scale-150 blur-xl opacity-0' : 'opacity-100'}`}>
-          <div className="w-28 h-28 bg-slate-800 rounded-[32px] mx-auto mb-10 flex items-center justify-center shadow-2xl relative overflow-hidden border border-slate-700">
-             {isUnlocking && <div className="absolute inset-0 bg-blue-500/30 animate-pulse"></div>}
-             {isUnlocking && <div className="absolute -top-4 -left-4 right-0 h-4 bg-blue-400 shadow-[0_0_20px_20px_#60a5fa] opacity-80 blur-xl animate-[pulse_1s_ease-in-out_infinite]"></div>}
-             <Fingerprint className={`h-14 w-14 transition-colors duration-300 ${isUnlocking ? 'text-blue-400 animate-pulse' : 'text-slate-500'}`} />
+        <div className={`w-full transition-all duration-500 delay-100 ${isUnlocking ? 'scale-110 blur-xl opacity-0' : 'opacity-100'}`}>
+          
+          <div className="text-center mb-8">
+            <div className={`w-28 h-28 bg-white rounded-[32px] mx-auto mb-10 flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.1)] relative overflow-hidden border-4 border-orange-500/20 transition-all ${isUnlocking ? 'scale-110 border-orange-500 shadow-[0_0_40px_rgba(242,103,34,0.6)]' : ''}`}>
+               {isUnlocking && <div className="absolute inset-0 bg-orange-500/20 animate-pulse"></div>}
+               <img src="/moodle.png" alt="Moodle" className={`w-16 h-16 object-contain transition-all duration-300 ${isUnlocking ? 'scale-110' : ''}`} />
+            </div>
+            
+            <h1 className="text-3xl font-black text-white mb-3 tracking-widest flex items-center justify-center">
+              OPEN<span className="text-[#1CA2D8]">POINT</span><span className="text-slate-400 font-medium text-xl ml-1">.edu</span>
+            </h1>
+            <p className="text-slate-400 text-sm tracking-widest">解鎖校園生活專屬生態圈</p>
           </div>
-          
-          <h1 className="text-3xl font-black text-white mb-3 tracking-widest flex items-center justify-center">
-            OPEN<span className="text-[#1CA2D8]">POINT</span><span className="text-slate-400 font-medium text-xl ml-1">.edu</span>
-          </h1>
-          <p className="text-slate-400 text-sm mb-16 tracking-widest">解鎖校園生活專屬生態圈</p>
-          
-          <Button 
-            onClick={() => {
-              setIsUnlocking(true)
-              setTimeout(() => {
-                setHasUnlocked(true)
-              }, 1800)
-            }}
-            disabled={isUnlocking}
-            className={`w-full bg-[#1CA2D8] hover:bg-[#158bba] text-white font-bold py-7 rounded-2xl shadow-lg transition-all duration-300 text-lg ${isUnlocking ? 'shadow-blue-500/50 bg-blue-500 scale-95' : ''}`}
-          >
-            {isUnlocking ? <Loader2 className="mr-3 h-6 w-6 animate-spin" /> : <ScanLine className="mr-3 h-6 w-6" />}
-            {isUnlocking ? '正在驗證學生身分...' : '快速綁定數位學生證'}
-          </Button>
-          
-          {!isUnlocking && (
-            <p className="mt-6 text-slate-600 text-xs font-medium cursor-pointer hover:text-slate-400 transition-colors">
-              或使用 @edu.tw 學校信箱登入
-            </p>
+
+          {!showMoodleLogin ? (
+            <div className="text-center animate-in fade-in zoom-in duration-300">
+              <Button 
+                onClick={() => {
+                  setIsUnlocking(true)
+                  setTimeout(() => setHasUnlocked(true), 1800)
+                }}
+                disabled={isUnlocking}
+                className="w-full bg-[#1CA2D8] hover:bg-[#158bba] text-white font-bold py-7 rounded-2xl shadow-lg text-lg mb-6"
+              >
+                <ScanLine className="mr-3 h-6 w-6" /> 快速綁定數位學生證
+              </Button>
+              <button 
+                onClick={() => setShowMoodleLogin(true)}
+                className="text-slate-400 hover:text-white transition-colors text-sm font-bold cursor-pointer inline-flex items-center gap-2 border border-slate-700 bg-slate-800/50 px-6 py-3 rounded-full active:scale-95"
+              >
+                <LogIn className="h-4 w-4" /> 使用 @edu.tw 學校信箱登入
+              </button>
+            </div>
+          ) : (
+            <div className="bg-slate-800/80 p-6 rounded-[32px] border border-slate-700 backdrop-blur-md shadow-2xl animate-in slide-in-from-bottom-8 fade-in duration-500">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-white font-bold text-lg">Moodle 系統授權</h2>
+                <button onClick={() => setShowMoodleLogin(false)} className="text-slate-500 hover:text-white p-1 bg-slate-700/50 rounded-full"><X className="h-4 w-4" /></button>
+              </div>
+              
+              <div className="space-y-4 mb-8">
+                <div>
+                  <label className="text-xs text-slate-400 font-bold ml-1 mb-1.5 block">學校信箱 / 學號</label>
+                  <Input 
+                    placeholder="例如: b11000000@edu.tw" 
+                    className="bg-slate-900/80 border-slate-700 text-white placeholder:text-slate-600 rounded-xl h-12 px-4 focus-visible:ring-orange-500"
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-400 font-bold ml-1 mb-1.5 block">Moodle 密碼</label>
+                  <Input 
+                    type="password"
+                    placeholder="請輸入密碼" 
+                    className="bg-slate-900/80 border-slate-700 text-white placeholder:text-slate-600 rounded-xl h-12 px-4 focus-visible:ring-orange-500"
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <Button 
+                onClick={() => {
+                  if(!loginEmail) return alert('請輸入帳號')
+                  setIsUnlocking(true)
+                  setTimeout(() => setHasUnlocked(true), 1500)
+                }}
+                disabled={isUnlocking}
+                className={`w-full bg-[#F26722] hover:bg-[#e05b18] text-white font-bold py-6 rounded-xl shadow-lg transition-all duration-300 text-lg ${isUnlocking ? 'opacity-80 scale-95' : ''}`}
+              >
+                {isUnlocking ? <Loader2 className="mr-3 h-5 w-5 animate-spin" /> : <ShieldCheck className="mr-3 h-5 w-5" />}
+                {isUnlocking ? '正在驗證身分...' : '登入並授權綁定'}
+              </Button>
+            </div>
           )}
         </div>
       </div>

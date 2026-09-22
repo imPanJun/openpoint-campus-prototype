@@ -28,7 +28,7 @@ export function CouponsScreen({ onBack }: { onBack: () => void }) {
   const [selectedTime, setSelectedTime] = useState('');
 
   const coupons = [
-    { id: 1, title: "美式咖啡 8 折券", subtitle: "限時優惠 (早八打卡獎勵)", expiry: "今天 12:00 前有效", color: "bg-[#F26722]", highlight: true },
+    { id: 1, title: "早八補給 咖啡買一送一券", subtitle: "icash Pay 搭車任務獎勵", expiry: "今天 12:00 前有效", color: "bg-[#F26722]", highlight: true },
     { id: 2, title: "波霸珍珠奶茶", subtitle: "嘗鮮價 9 折 (學餐消費回饋)", expiry: "今天 22:00 前有效", color: "bg-orange-400" },
     { id: 3, title: "拿鐵咖啡 9 折券", subtitle: "全品項適用", expiry: "2026/06/01", color: "bg-green-600" },
   ];
