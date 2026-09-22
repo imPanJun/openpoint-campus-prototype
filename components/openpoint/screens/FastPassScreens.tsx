@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input"
 import { ScreenType } from '../types';
 import { BackButton } from '../common/BackButton';
 import { CouponModal } from '../common/CouponModal';
+import { PitchBox } from '../common/PitchBox';
 
 export function FastPassUnlockScreen({ onUnlock, onBack }: { onUnlock: () => void; onBack: () => void }) {
   return (
@@ -71,10 +72,13 @@ export function FastPassScannerScreen({ onNext, onBack }: { onNext: (amount: num
 
   return (
     <div className="flex flex-col h-screen max-h-screen overflow-hidden bg-[#0B1015] relative">
-      <div className="p-4 flex items-center justify-between shrink-0">
-        <button onClick={onBack} className="flex items-center text-white bg-white/10 px-3 py-1.5 rounded-full hover:bg-white/20 transition-colors"><ArrowLeft className="h-4 w-4 mr-1" /><span className="text-xs font-bold">返回</span></button>
-        <h1 className="text-base font-bold text-white">OP Fast-Pass 極速結帳</h1>
-        <div className="w-16"></div>
+      <div className="p-4 flex flex-col shrink-0">
+        <div className="flex items-center justify-between mb-2">
+          <button onClick={onBack} className="flex items-center text-white bg-white/10 px-3 py-1.5 rounded-full hover:bg-white/20 transition-colors"><ArrowLeft className="h-4 w-4 mr-1" /><span className="text-xs font-bold">返回</span></button>
+          <h1 className="text-base font-bold text-white">OP Fast-Pass 極速結帳</h1>
+          <div className="w-16"></div>
+        </div>
+        <div className="-mx-2"><PitchBox text="紓解學區門市尖峰時段的結帳人潮，有效提升單店營運坪效，同時培養新世代自助結帳習慣。" /></div>
       </div>
       
       {showAlert && (

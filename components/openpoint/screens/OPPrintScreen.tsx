@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input"
 import { ScreenType } from '../types';
 import { BackButton } from '../common/BackButton';
 import { CouponModal } from '../common/CouponModal';
+import { PitchBox } from '../common/PitchBox';
 
 export function OPPrintScreen({ setActiveScreen }: { setActiveScreen: (screen: ScreenType) => void }) {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
@@ -45,6 +46,7 @@ export function PrintUploadScreen({ onNext, onBack }: { onNext: () => void; onBa
         <button onClick={onBack} className="absolute left-4 p-2 -ml-2 rounded-full hover:bg-slate-100 transition-colors"><ArrowLeft className="h-5 w-5 text-slate-700" /></button>
         <h1 className="w-full text-lg font-bold text-center text-slate-800">雲端無感列印</h1>
       </div>
+      <PitchBox text="鎖定學生期中/期末考的高頻列印剛需，將『列印痛點』轉化為學生必定踏入 7-11 實體門市的絕對理由。" />
       <div className="flex-1 p-6 flex flex-col items-center justify-center">
         <div onClick={onNext} className="w-full border-2 border-dashed border-slate-300 bg-white rounded-3xl p-10 flex flex-col items-center gap-4 hover:border-[#F26722]/50 hover:bg-orange-50 transition-all cursor-pointer active:scale-95 group shadow-sm">
           <div className="h-16 w-16 rounded-full bg-orange-100 flex items-center justify-center group-hover:-translate-y-1 transition-transform">

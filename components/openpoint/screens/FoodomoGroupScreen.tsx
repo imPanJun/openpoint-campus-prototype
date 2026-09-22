@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input"
 import { ScreenType } from '../types';
 import { BackButton } from '../common/BackButton';
 import { CouponModal } from '../common/CouponModal';
+import { PitchBox } from '../common/PitchBox';
 
 export function FoodomoGroupScreen({ setActiveScreen }: { setActiveScreen: (screen: ScreenType) => void }) {
   const [view, setView] = useState<'init' | 'host_select_store' | 'host_room_created' | 'member_enter_code' | 'menu' | 'payment' | 'status' | 'address' | 'success'>('init');
@@ -158,6 +159,8 @@ export function FoodomoGroupScreen({ setActiveScreen }: { setActiveScreen: (scre
         </button>
         <h1 className="w-full text-lg font-bold text-center text-white pr-8">Foodomo 校園揪團</h1>
       </div>
+
+      <PitchBox text="發揮學生同儕的社群擴散效應，以極低的單筆物流成本達成高客單價，強勢提升校園外送市佔率。" />
 
       <div className="flex-1 overflow-y-auto">
         {view === 'init' && (

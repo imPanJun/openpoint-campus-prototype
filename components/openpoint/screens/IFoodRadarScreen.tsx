@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input"
 import { ScreenType } from '../types';
 import { BackButton } from '../common/BackButton';
 import { CouponModal } from '../common/CouponModal';
+import { PitchBox } from '../common/PitchBox';
 
 export function IFoodRadarScreen({ onBack }: { onBack: () => void }) {
   const [activeFilter, setActiveFilter] = useState("all")
@@ -41,7 +42,10 @@ export function IFoodRadarScreen({ onBack }: { onBack: () => void }) {
         </button>
         <h1 className="mt-2 text-lg font-bold text-center text-white">校園 i珍食雷達</h1>
       </div>
-      <div className="mx-4 mt-3 rounded-xl bg-green-100 p-3 flex items-center justify-between border border-green-200">
+      
+      <PitchBox text="精準媒合學生尋求高性價比餐飲的需求，有效降低門市鮮食廢棄率 (達成 ESG 指標)，同時確保單店毛利。" />
+
+      <div className="mx-4 mt-1 rounded-xl bg-green-100 p-3 flex items-center justify-between border border-green-200">
         <span className="text-green-800 font-bold text-sm">65% OFF 珍食時段進行中</span>
         <div className="animate-pulse"><Clock className="h-5 w-5 text-green-600" /></div>
       </div>

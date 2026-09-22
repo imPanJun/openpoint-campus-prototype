@@ -9,6 +9,7 @@ import {
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { BackButton } from "../common/BackButton"
+import { PitchBox } from "../common/PitchBox"
 
 type SplitBillState = 
   | 'upload' 
@@ -72,7 +73,7 @@ export function SplitBillScreen({ onBack }: { onBack: () => void }) {
     setView('scanning')
     setScanText("正在掃描收據...")
     setTimeout(() => setScanText("AI 正在萃取品項與金額..."), 1000)
-    setTimeout(() => setScanText("✨ 辨識出：咖啡、飯糰、服務費..."), 2200)
+    setTimeout(() => setScanText("✨ 辨識出：義大利麵、燉飯、服務費..."), 2200)
     setTimeout(() => {
       setView('mode_select')
     }, 3200)
@@ -158,7 +159,10 @@ export function SplitBillScreen({ onBack }: { onBack: () => void }) {
         
         {/* State: upload */}
         {view === 'upload' && (
-          <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center justify-center animate-in fade-in duration-300">
+          <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center justify-start pt-8 animate-in fade-in duration-300">
+            <div className="w-full mb-8">
+              <PitchBox text="直擊聚餐分帳痛點，創造極高 APP 黏著度與開啟率；並透過 OP 點數折抵手續費，打造點數消耗新場景。" />
+            </div>
             <div className="w-24 h-24 bg-indigo-100 rounded-full flex items-center justify-center mb-8 shadow-inner">
               <Receipt className="h-12 w-12 text-indigo-500" />
             </div>

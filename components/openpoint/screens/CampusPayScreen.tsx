@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input"
 import { ScreenType } from '../types';
 import { BackButton } from '../common/BackButton';
 import { CouponModal } from '../common/CouponModal';
+import { PitchBox } from '../common/PitchBox';
 
 export function CampusPayScreen({ onBack }: { onBack: () => void }) {
   // ★ 加入 report_success 狀態
@@ -47,6 +48,8 @@ export function CampusPayScreen({ onBack }: { onBack: () => void }) {
         </h1>
         <div className="w-16"></div>
       </div>
+
+      <PitchBox text="以 icash Pay / OPEN WALLET 深入校園封閉金流，掌握學生每日三餐的真實消費數據與金流入口。" />
 
       {payState === 'paying' && (
         <div className="flex-1 p-6 flex flex-col items-center overflow-auto pb-10 animate-in fade-in duration-300">

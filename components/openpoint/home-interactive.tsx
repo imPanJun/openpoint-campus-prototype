@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input"
 import { ScreenType } from './types';
 import { BackButton } from './common/BackButton';
 import { CouponModal } from './common/CouponModal';
+import { PitchBox } from './common/PitchBox';
 import { OPPrintScreen } from './screens/OPPrintScreen';
 import { PrintUploadScreen } from './screens/OPPrintScreen';
 import { PrintPaymentScreen } from './screens/OPPrintScreen';
@@ -201,6 +202,7 @@ export function HomeInteractive() {
                   <Target className="h-4 w-4 text-[#F26722]" />
                   <h2 className="text-sm font-bold text-slate-800">校園任務與獎勵</h2>
                 </div>
+                <div className="-mx-1 mb-3"><PitchBox text="利用校園內高密度的社交網絡，透過點數與商品誘因引發病毒式行銷，打造爆發式的會員增長引擎。" /></div>
                 <Card className="border border-orange-100 bg-gradient-to-r from-orange-50 to-white transition-all hover:shadow-md active:scale-[0.99] cursor-pointer shadow-sm" onClick={() => setActiveScreen('referral')}>
                   <CardContent className="p-3">
                     <div className="flex items-start gap-3">
@@ -230,6 +232,7 @@ export function HomeInteractive() {
                   <h2 className="text-base font-black text-slate-800">我的通勤任務</h2>
                   <span className="text-xs text-[#1CA2D8] font-bold">本週進度 {commuteProgress} / 5</span>
                 </div>
+                <div className="-mx-1 mb-3"><PitchBox text="將每日高頻的通勤剛需，轉化為統一實體門市的精準導流。完成『搭車賺點 ➔ 門市消費』的生態圈閉環。" /></div>
                 <Card className="border border-blue-100 shadow-sm overflow-hidden">
                   <CardContent className="p-0">
                     <div className="p-3 bg-gradient-to-r from-blue-50 to-white flex items-center gap-3">
@@ -324,7 +327,7 @@ export function HomeInteractive() {
     return (
       <div className={`mx-auto min-h-screen max-w-[400px] flex flex-col items-center justify-center p-6 relative overflow-hidden transition-all duration-1000 ${isUnlocking ? 'bg-slate-50 opacity-0 scale-110' : 'bg-slate-900 shadow-2xl'}`}>
         <div className={`w-full transition-all duration-500 delay-100 ${isUnlocking ? 'scale-110 blur-xl opacity-0' : 'opacity-100'}`}>
-          
+          <div className="-mt-2 mb-4 mx-2"><PitchBox text="無縫串接校務系統，以極低獲客成本 (CAC) 取得『實名制、高含金量』的學生會員，免去繁瑣註冊流程。" /></div>
           <div className="text-center mb-8">
             <div className={`w-28 h-28 bg-white rounded-[32px] mx-auto mb-10 flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.1)] relative overflow-hidden border-4 border-orange-500/20 transition-all ${isUnlocking ? 'scale-110 border-orange-500 shadow-[0_0_40px_rgba(242,103,34,0.6)]' : ''}`}>
                {isUnlocking && <div className="absolute inset-0 bg-orange-500/20 animate-pulse"></div>}
