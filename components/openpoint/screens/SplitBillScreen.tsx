@@ -125,6 +125,10 @@ export function SplitBillScreen({ onBack }: { onBack: () => void }) {
     return () => clearTimeout(timer)
   }, [isSimulating, flowBAllClaimed, unassignedFlowBItems])
 
+  const startSimulation = () => {
+    setIsSimulating(true)
+  }
+
   return (
     <div className="flex flex-col h-full bg-slate-50 overflow-hidden">
       {/* Fixed Header */}
