@@ -1,11 +1,10 @@
 "use client"
 import { useState, useEffect } from "react"
-import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { 
-  ArrowLeft, Upload, Camera, ScanLine, Loader2, Users, UserPlus, User,
-  CheckCircle, ChevronRight, QrCode, Smartphone, Info, Share2, AlertTriangle, Receipt, CreditCard, Link,
+  Upload, Camera, Loader2, Users, User,
+  CheckCircle, QrCode, Smartphone, Info, Share2, AlertTriangle, Receipt, CreditCard, Link,
   RefreshCw, Check, Plus
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
