@@ -615,7 +615,6 @@ export function SplitBillScreen({ onBack }: { onBack: () => void }) {
                           </>
                         )}
                       </div>
-                      </div>
                     </div>
                   </>
                 )
